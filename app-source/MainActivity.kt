@@ -154,7 +154,7 @@ class MainActivity : Activity() {
             setTextColor(Color.WHITE)
             setHintTextColor(Color.GRAY)
             inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
-            singleLine = true
+            setSingleLine(true)
             setPadding(dp(12), dp(8), dp(12), dp(8))
             background = rounded(Color.rgb(27, 37, 51), Color.rgb(61, 78, 100))
         }
