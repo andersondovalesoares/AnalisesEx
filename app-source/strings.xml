@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="delivery_assistant_service_label">Assistente de entregas</string>
+    <string name="delivery_assistant_service_description">Lê os dados de ofertas visíveis para estimar ganhos por quilômetro, por hora e lucro. Não aceita nem recusa ofertas.</string>
+</resources>
