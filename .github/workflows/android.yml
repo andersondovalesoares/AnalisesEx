@@ -104,6 +104,18 @@ jobs:
           echo "===== Versão do aplicativo ====="
           grep -n "versionCode\|versionName" AnalisesEx/app/build.gradle.kts
 
+      - name: Integrate delivery assistant and Portuguese interface
+        run: |
+          mkdir -p AnalisesEx/app/src/main/res/xml AnalisesEx/app/src/main/res/values
+          cp app-source/MainActivity.kt AnalisesEx/app/src/main/java/com/analisesex/MainActivity.kt
+          cp app-source/DeliveryAdvisorService.kt AnalisesEx/app/src/main/java/com/analisesex/DeliveryAdvisorService.kt
+          cp app-source/AndroidManifest.xml AnalisesEx/app/src/main/AndroidManifest.xml
+          cp app-source/delivery_accessibility_config.xml AnalisesEx/app/src/main/res/xml/delivery_accessibility_config.xml
+          cp app-source/strings.xml AnalisesEx/app/src/main/res/values/strings.xml
+          echo "Assistente de entregas e interface em português integrados."
+          echo "===== Versão do APK ====="
+          grep -n "versionCode\|versionName" AnalisesEx/app/build.gradle.kts
+
       - name: Inspect Sinais Tela source
         run: |
           echo "===== MainActivity.kt ====="
