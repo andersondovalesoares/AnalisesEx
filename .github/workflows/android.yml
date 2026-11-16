@@ -45,6 +45,39 @@ jobs:
           print("String corrigida sem alterar as funções do aplicativo.")
           PY
 
+      - name: Prepare update-compatible app and Portuguese status notification
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          root = Path("AnalisesEx/app/src/main")
+          manifest = root / "AndroidManifest.xml"
+          m = manifest.read_text(encoding="utf-8")
+          if 'android.permission.POST_NOTIFICATIONS' not in m:
+              m = m.replace('<manifest xmlns:android="http://schemas.android.com/apk/res/android">', '<manifest xmlns:android="http://schemas.android.com/apk/res/android">\\n <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>')
+          m = m.replace('android:label="Análises Ex"', 'android:label="Sinais Tela"')
+          manifest.write_text(m, encoding="utf-8")
+
+          gradle = Path("AnalisesEx/app/build.gradle.kts")
+          g = gradle.read_text(encoding="utf-8")
+          g = g.replace('versionCode = 1; versionName = "1.0"', 'versionCode = 2; versionName = "1.1"')
+          gradle.write_text(g, encoding="utf-8")
+
+          activity = root / "java/com/analisesex/MainActivity.kt"
+          a = activity.read_text(encoding="utf-8")
+          if 'android.os.Build' not in a:
+              a = a.replace('import android.os.Bundle', 'import android.os.Bundle\\nimport android.os.Build\\nimport android.content.pm.PackageManager')
+          a = a.replace('val m=getSystemService(MEDIA_PROJECTION_SERVICE) as MediaProjectionManager',
+                        'if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission("android.permission.POST_NOTIFICATIONS") != PackageManager.PERMISSION_GRANTED) { requestPermissions(arrayOf("android.permission.POST_NOTIFICATIONS"), 502) }\\n   val m=getSystemService(MEDIA_PROJECTION_SERVICE) as MediaProjectionManager')
+          activity.write_text(a, encoding="utf-8")
+
+          service = root / "java/com/analisesex/CaptureService.kt"
+          s = service.read_text(encoding="utf-8")
+          s = s.replace('setContentText("Captura de tela ativa")', 'setContentText("Captura ativa • aguardando confirmação")')
+          s = s.replace('setContentTitle("Análises Ex")', 'setContentTitle("Sinais Tela")')
+          service.write_text(s, encoding="utf-8")
+          print("Atualização preparada: versão 1.1, nome Sinais Tela e notificação em português.")
+          PY
+
       - name: Inspect Sinais Tela source
         run: |
           echo "===== MainActivity.kt ====="
