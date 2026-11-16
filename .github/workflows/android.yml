@@ -7,6 +7,7 @@ on:
     paths:
       - 'project.zip.b64'
       - '.github/workflows/android.yml'
+      - 'app-source/**'
 
 permissions:
   contents: read
@@ -102,6 +103,23 @@ jobs:
           cat AnalisesEx/app/src/main/AndroidManifest.xml
           echo "===== Versão do aplicativo ====="
           grep -n "versionCode\|versionName" AnalisesEx/app/build.gradle.kts
+
+      - name: Integrate delivery assistant and Portuguese interface
+        run: |
+          mkdir -p AnalisesEx/app/src/main/res/xml AnalisesEx/app/src/main/res/values
+          cp app-source/MainActivity.kt AnalisesEx/app/src/main/java/com/analisesex/MainActivity.kt
+          cp app-source/DeliveryAdvisorService.kt AnalisesEx/app/src/main/java/com/analisesex/DeliveryAdvisorService.kt
+          cp app-source/AndroidManifest.xml AnalisesEx/app/src/main/AndroidManifest.xml
+          cp app-source/delivery_accessibility_config.xml AnalisesEx/app/src/main/res/xml/delivery_accessibility_config.xml
+          cp app-source/strings.xml AnalisesEx/app/src/main/res/values/strings.xml
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("AnalisesEx/app/build.gradle.kts")
+          s = p.read_text(encoding="utf-8")
+          s = s.replace('versionCode = 2; versionName = "1.1"', 'versionCode = 3; versionName = "1.2"')
+          p.write_text(s, encoding="utf-8")
+          print("Assistente de entregas integrado. Versão 1.2.")
+          PY
 
       - name: Inspect Sinais Tela source
         run: |
