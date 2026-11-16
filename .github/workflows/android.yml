@@ -22,6 +22,15 @@ jobs:
           base64 -d project.zip.b64 > project.zip
           unzip -oq project.zip
 
+      - name: Inspect Android configuration
+        run: |
+          echo "===== AndroidManifest.xml ====="
+          cat AnalisesEx/app/src/main/AndroidManifest.xml
+          echo "===== app/build.gradle.kts ====="
+          cat AnalisesEx/app/build.gradle.kts
+          echo "===== settings.gradle.kts ====="
+          cat AnalisesEx/settings.gradle.kts
+
       - name: Fix broken Kotlin multiline string
         run: |
           python3 - <<'PY'
