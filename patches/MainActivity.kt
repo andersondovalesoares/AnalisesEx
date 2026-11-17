@@ -97,7 +97,7 @@ class MainActivity : Activity() {
     private fun startOverlay() {
         if (Build.VERSION.SDK_INT >= 23 && !Settings.canDrawOverlays(this)) return
         val intent = Intent(this, OverlayService::class.java)
-        if (Build.VERSION.SDK_INT >= 26) startForegroundService(intent) else startService(intent)
+        startService(intent)
         overlayStatus.text = "Botão flutuante ativado • toque na bolinha ST"
         overlayStatus.setTextColor(Color.rgb(80, 220, 130))
     }
