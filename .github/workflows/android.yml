@@ -84,6 +84,7 @@ jobs:
         run: |
           cp patches/MainActivity.kt AnalisesEx/app/src/main/java/com/analisesex/MainActivity.kt
           cp patches/CaptureService.kt AnalisesEx/app/src/main/java/com/analisesex/CaptureService.kt
+          cp patches/CandleAnalyzer.kt AnalisesEx/app/src/main/java/com/analisesex/CandleAnalyzer.kt
           cp patches/OverlayService.kt AnalisesEx/app/src/main/java/com/analisesex/OverlayService.kt
           python3 - <<'PY'
           from pathlib import Path
