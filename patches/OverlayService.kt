@@ -117,12 +117,11 @@ class OverlayService : Service() {
         card.addView(text("Mercado: OTC  •  Gráfico: M1  •  Expiração: 1 min", 12f, Color.LTGRAY))
         card.addView(text("Leitura: a cada 5 segundos (quando a captura estiver ativa).", 12f, Color.LTGRAY))
         card.addView(text("Ainda não há sinal automático validado. Não opere com base na seta de teste.", 12f, Color.rgb(255, 195, 105)))
-        val test = Button(this).apply {
-            text = if (markerVisible) "OCULTAR MARCAÇÃO DE TESTE" else "TESTAR DESENHO SOBRE A TELA"
-            setOnClickListener {
-                if (markerVisible) removeMarker() else showMarker()
-                (this as Button).text = if (markerVisible) "OCULTAR MARCAÇÃO DE TESTE" else "TESTAR DESENHO SOBRE A TELA"
-            }
+        val test = Button(this)
+        test.text = if (markerVisible) "OCULTAR MARCAÇÃO DE TESTE" else "TESTAR DESENHO SOBRE A TELA"
+        test.setOnClickListener {
+            if (markerVisible) removeMarker() else showMarker()
+            test.text = if (markerVisible) "OCULTAR MARCAÇÃO DE TESTE" else "TESTAR DESENHO SOBRE A TELA"
         }
         card.addView(test)
         card.addView(Button(this).apply {
