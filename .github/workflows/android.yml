@@ -8,6 +8,7 @@ on:
       - 'project.zip.b64'
       - '.github/workflows/android.yml'
       - 'app-source/**'
+      - 'patches/**'
 
 permissions:
   contents: read
