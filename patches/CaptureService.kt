@@ -9,6 +9,9 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.graphics.PixelFormat
+import android.graphics.Bitmap
+import android.graphics.Color
+import android.media.Image
 import android.hardware.display.DisplayManager
 import android.hardware.display.VirtualDisplay
 import android.media.ImageReader
@@ -26,6 +29,7 @@ class CaptureService : Service() {
     private var reader: ImageReader? = null
     private var display: VirtualDisplay? = null
     private var lastSampleAt = 0L
+    private var lastAnalysisText = "Aguardando primeira leitura do gráfico."
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         criarCanaisDeNotificacao()
@@ -70,7 +74,16 @@ class CaptureService : Service() {
             val now = SystemClock.elapsedRealtime()
             if (now - lastSampleAt >= 5_000L) {
                 lastSampleAt = now
-                // Ponto de integração do analisador de candles.
+                val bitmap = imageToBitmap(image)
+                if (bitmap != null) {
+                    val result = CandleAnalyzer.analyze(bitmap)
+                    lastAnalysisText = "${result.pressure} • pixels verdes: ${result.greenPixels} • vermelhos: ${result.redPixels} • colunas detectadas: ${result.candleColumns}"
+                    atualizarNotificacaoDeStatus(lastAnalysisText)
+                    bitmap.recycle()
+                } else {
+                    lastAnalysisText = "Não foi possível interpretar a captura."
+                    atualizarNotificacaoDeStatus(lastAnalysisText)
+                }
             }
             image.close()
         }, Handler(Looper.getMainLooper()))
@@ -93,6 +106,52 @@ class CaptureService : Service() {
         )
 
         return START_NOT_STICKY
+    }
+
+
+    private fun imageToBitmap(image: Image): Bitmap? {
+        return try {
+            val plane = image.planes.firstOrNull() ?: return null
+            val buffer = plane.buffer
+            val width = image.width
+            val height = image.height
+            val rowStride = plane.rowStride
+            val pixelStride = plane.pixelStride
+            val pixels = IntArray(width * height)
+            for (y in 0 until height) {
+                val row = y * rowStride
+                for (x in 0 until width) {
+                    val index = row + x * pixelStride
+                    val r = buffer.get(index).toInt() and 0xff
+                    val g = buffer.get(index + 1).toInt() and 0xff
+                    val b = buffer.get(index + 2).toInt() and 0xff
+                    val a = if (pixelStride >= 4) buffer.get(index + 3).toInt() and 0xff else 255
+                    pixels[y * width + x] = Color.argb(a, r, g, b)
+                }
+            }
+            Bitmap.createBitmap(pixels, width, height, Bitmap.Config.ARGB_8888)
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    private fun atualizarNotificacaoDeStatus(detalhes: String) {
+        val builder = if (Build.VERSION.SDK_INT >= 26) {
+            Notification.Builder(this, STATUS_CHANNEL)
+        } else {
+            Notification.Builder(this)
+        }
+        val notification = builder
+            .setSmallIcon(android.R.drawable.ic_menu_view)
+            .setContentTitle("Sinais Tela • leitura visual ativa")
+            .setContentText(detalhes)
+            .setCategory(Notification.CATEGORY_SERVICE)
+            .setOngoing(true)
+            .setOnlyAlertOnce(true)
+            .setShowWhen(false)
+            .build()
+        getSystemService(NotificationManager::class.java)
+            .notify(STATUS_NOTIFICATION_ID, notification)
     }
 
     private fun criarCanaisDeNotificacao() {
